@@ -1,74 +1,43 @@
 class RegisterModel {
-  final String name;
-  final String? age;
-  final String? height;
-  final String? bodytype;
-  final String? skintone;
-  final String? mothertingue;
-  final String? materialstatus;
-  final String? horoscope;
-  final String? bloodgroup;
-  final String? aboutme;
-  final String? religion;
-  final String? caste;
-  final String? gotra;
-  final String? address;
-  final String? city;
-  final String? education;
-  final String? occupation;
-  final String? employedin;
-  final String? annualincome;
-  final String? familystatus;
-  final String? familytype;
-  final String? profilefor;
-  final String? gender;
-  final String email;
-  final String? birthday;
-  final String password;
-  final String number;
-  final String? weight;
-  final String? hobbies;
-  final String? birthTime;
-  final String? birthPlace;
-  final String? timetocall;
-  final String lastname;
-  final String? orgname;
 
-  RegisterModel(
-      {required this.name,
-      this.age,
-      this.height,
-      this.bodytype,
-      this.skintone,
-      this.mothertingue,
-      this.materialstatus,
-      this.horoscope,
-      this.bloodgroup,
-      this.aboutme,
-      this.religion,
-      this.caste,
-      this.gotra,
-      this.address,
-      this.city,
-      this.education,
-      this.occupation,
-      this.employedin,
-      this.annualincome,
-      this.familystatus,
-      this.familytype,
-      this.profilefor,
-      this.gender,
-      required this.email,
-      required this.password,
-      required this.number,
-      this.birthPlace,
-      this.birthTime,
-      this.birthday,
-      this.hobbies,
-      required this.lastname,
-      this.orgname,
-      this.timetocall,
-      this.weight});
+  late String name;
+  late String email;
+  late String password;
+  late String number;
+  late String lastname;
+
+   String? age;
+   String? height;
+   String? bodytype;
+   String? skintone;
+   String? mothertingue;
+   String? materialstatus;
+   String? horoscope;
+   String? bloodgroup;
+   String? aboutme;
+   String? religion;
+   String? caste;
+   String? gotra;
+   String? address;
+   String? city;
+   String? education;
+   String? occupation;
+   String? employedin;
+   String? annualincome;
+   String? familystatus;
+   String? familytype;
+   String? profilefor;
+   String? gender;
+   String? birthday;
+   String? weight;
+   String? hobbies;
+   String? birthTime;
+   String? birthPlace;
+   String? timetocall;
+   String? orgname;
+
+  RegisterModel();
+
   Map<String, dynamic> toJson() => {
         "profileFor": profilefor,
         "bloodGroup": bloodgroup,

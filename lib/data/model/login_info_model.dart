@@ -276,7 +276,7 @@ class User {
   });
 
   String email;
-  String mobileNumber;
+  String? mobileNumber;
   String firstName;
   String lastName;
 

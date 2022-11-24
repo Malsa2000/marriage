@@ -3,7 +3,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marriage/login/login.dart';
+import 'package:marriage/process_response.dart';
+import 'package:marriage/register/about_user.dart';
 import 'package:marriage/register/register_info.dart';
+import 'package:marriage/register/submit_regester.dart';
+import 'package:marriage/widgets/controller_helper.dart';
+
+import '../data/model/user.dart';
+import '../provider/auth_provider_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -13,15 +20,14 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+
   String dropDownValu = "Select Profile";
   int? selectedvalue = 0;
-  late String firstname;
-  late String lastname;
-  late String number;
   TextEditingController namecontroller = TextEditingController();
-
   TextEditingController numbercontroller = TextEditingController();
   TextEditingController lastnamecontroller = TextEditingController();
+
+
   final GlobalKey<FormState> formkey = GlobalKey<FormState>();
 
   @override
@@ -150,6 +156,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   Container(
                     margin: const EdgeInsets.all(10),
+
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -161,9 +168,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           TextFormField(
                             validator: (name) {
-                              return namecontroller.text.isNotEmpty
-                                  ? null
-                                  : "please enter name";
+                              return namecontroller.text.isNotEmpty ? null : "please enter name";
                             },
                             controller: namecontroller,
                             decoration: InputDecoration(
@@ -209,7 +214,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ]),
                   ),
                   Container(
-                    margin: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(top: 10 , right:  10 ,left: 10 ,bottom: 20),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -264,102 +269,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               ]),
                         ]),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
                   InkWell(
-                      onTap: () async {
-                        log('name is  ${namecontroller.text}');
-                        // await Apiclient().request(
-                        //   endpoint: 'user/register',
-                        //   type: 'post',
-                        //   data: {
-                        //     'email': 'hello123@gmail.com',
-                        //     'firstName': namecontroller.text,
-                        //     'lastName': lastnamecontroller.text,
-                        //     'mobileNumber': numbercontroller.text,
-                        //     'password': 'hello bro',
-                        //   },
-                        // );
-                        if (formkey.currentState!.validate()) {
-                          setState(() {
-                            firstname = namecontroller.text;
-                            lastname = lastnamecontroller.text;
-                            number = numbercontroller.text;
-                          });
-                          // log('hello');
-                          // try {
-                          //   log('entered');
-                          //   final response = await Dio(
-                          //     BaseOptions(
-                          //       baseUrl:
-                          //           'https://marriagestation.herokuapp.com/api/v1/',
-                          //       headers: {
-                          //         'Content-type': 'application/json',
-                          //         'Accept': 'application/json',
-                          //       },
-                          //     ),
-                          //   ).post(
-                          //     'user/register',
-                          //     data: {
-                          //       "firstName": namecontroller.text,
-                          //       "lastName": lastnamecontroller.text,
-                          //       "email": "fdiiiuud233@dspmail.com",
-                          //       "mobileNumber": numbercontroller.text,
-                          //       "password": "Test@12346",
-                          //     },
-                          //     queryParameters: {
-                          //       'email': 'sulabhadhikakki512@dspmail.com',
-                          //       'password': 'Test@12346',
-                          //     },
-
-                          // queryParameters: {
-                          //   'email': 'hello@gmail.com',
-                          //   'firstName': 'jhdjadvs',
-                          //   'lastName': 'jhasdjhagvs',
-                          //   'mobileNumber': '9876543210',
-                          //   'password': 'hello bro',
-                          // },
-                          // );
-
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (context) {
-                            return RegisterInfo(
-                              firstname: firstname,
-                              lastname: lastname,
-                              number: number,
-                            );
-                          }));
-                          //   log('completed');
-                          //   log(response.data.toString());
-                          //   return response.data;
-                          // } on DioError catch (e) {
-                          //   log(e.message);
-                          //   log('bad api');
-                          //   throw Exception(e.message);
-                          // }
-
-                          // await ref
-                          //     .watch(registerUserNotifierprovider.notifier)
-                          //     .postUser(
-                          //         RegisterModel(
-                          //           name: namecontroller.text,
-                          //           email: 'hellobro125553@gmail.com',
-                          //           password: 'hello bro',
-                          //           number: numbercontroller.text,
-                          //           lastname: lastnamecontroller.text,
-                          //         ),
-                          //         context);
-
-                          // log('completed');
-                        }
-                        //   // Navigator.of(context)
-                        //     .push(MaterialPageRoute(builder: (context) => RegisterInfo(
-                        //     firstname: namecontroller,
-                        //     lastname: lastnamecontroller,
-                        //     number: numbercontroller,
-                        //   )));
-                        // }
+                      onTap: () {
+                        regester();
                       },
                       child: Container(
                         alignment: Alignment.center,
@@ -383,6 +295,19 @@ class _RegisterPageState extends State<RegisterPage> {
         ]));
   }
 
+ void regester(){
+    if(numbercontroller.text.isNotEmpty &&
+        namecontroller.text.isNotEmpty &&
+        lastnamecontroller.text.isNotEmpty){
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>
+          RegisterInfo(
+              firstName: numbercontroller.text,
+              lastName: lastnamecontroller.text,
+              gender: selectedvalue ==0 ? "meal" :"femeal",
+              mobileNumber: numbercontroller.text,
+              profileFor: dropDownValu)
+      ) );
+    }}
   OutlineInputBorder outlinefocusBorder({Color color = Colors.black}) {
     return OutlineInputBorder(
         borderSide: BorderSide(color: color),

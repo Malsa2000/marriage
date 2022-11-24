@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:marriage/process_response.dart';
+import 'package:marriage/provider/auth_provider_controller.dart';
+import 'package:marriage/widgets/controller_helper.dart';
 
 class LoginNumber extends StatelessWidget {
   LoginNumber({Key? key}) : super(key: key);
@@ -39,6 +42,7 @@ class LoginNumber extends StatelessWidget {
                         ),
                         Container(
                           padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.only(bottom: 20),
                           decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10)),
@@ -54,28 +58,31 @@ class LoginNumber extends StatelessWidget {
                           ),
                         ),
                       ]),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: Colors.red.shade400,
-                        borderRadius: BorderRadius.circular(10)),
-                    height: 50,
-                    width: 300,
-                    child: const Text(
-                      'LOGIN',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white),
+
+                  InkWell(
+                    onTap: (){
+                      loginUsingNumber(context);
+                      print("object");
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      margin: EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                          color: Colors.red.shade400,
+                          borderRadius: BorderRadius.circular(10)),
+                      height: 50,
+                      width: 300,
+                      child: const Text(
+                        'LOGIN',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.white),
+                      ),
                     ),
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -91,5 +98,16 @@ class LoginNumber extends StatelessWidget {
                     ],
                   )
                 ])));
+  }
+
+  void loginUsingNumber(BuildContext context) async{
+    ProcessResponse processResponse = await AuthController()
+        .loginWithNumber(mobilNumber: numbercontroller.text);
+    if(processResponse.succsess){
+      Navigator.pushReplacementNamed(context, '/home');
+    }
+    else{
+      context.snackBar(massage: processResponse.massage, error: !processResponse.succsess);
+    }
   }
 }

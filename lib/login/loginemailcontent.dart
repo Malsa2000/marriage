@@ -2,10 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:marriage/data/controller/post_controller.dart';
+import 'package:marriage/process_response.dart';
+import 'package:marriage/provider/auth_provider_controller.dart';
 import 'package:marriage/register/register_info.dart';
 import 'package:marriage/register/register_page.dart';
+import 'package:marriage/reset_password.dart';
+import 'package:marriage/widgets/controller_helper.dart';
 
 import '../data/model/login_model.dart';
+import '../widgets/Custom_text_field.dart';
 
 class LoginContent extends StatefulWidget {
   const LoginContent({Key? key}) : super(key: key);
@@ -15,15 +20,38 @@ class LoginContent extends StatefulWidget {
 }
 
 class _LoginContentState extends State<LoginContent> {
-  final TextEditingController namecontroller =
-      TextEditingController(text: 'rosantmg12@gmail.com');
 
-  final TextEditingController passcontroller =
-      TextEditingController(text: 'Football@123');
+ late TextEditingController _emailController ;
+ late TextEditingController _passwordController ;
+ String? _emailErorr , _passwordErorr;
+ bool isloading = false;
+ bool obsecuretext = true;
+
+
+ @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+@override
+  void dispose() {
+    super.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+  }
+
+  // final TextEditingController namecontroller =
+  //     TextEditingController(text: 'rosantmg12@gmail.com');
+  //
+  // final TextEditingController passcontroller =
+  //     TextEditingController(text: 'Football@123');
+
+
+
   final GlobalKey<FormState> formkey = GlobalKey<FormState>();
 
-  bool isloading = false;
-  bool obsecuretext = true;
+
   int validateEmail(String emailAddress) {
     String patttern = r'^[\w-.]+@([\w-]+.)+[\w-]{2,4}$';
     RegExp regExp = RegExp(patttern);
@@ -63,12 +91,13 @@ class _LoginContentState extends State<LoginContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CustomTextField(
+                errorText: _emailErorr,
                 text1: 'Email',
-                controller: namecontroller,
+                controller: _emailController,
                 hinttext: 'Enter your email',
                 title: 'Email',
                 validate: (value) {
-                  int res = validateEmail(namecontroller.text);
+                  int res = validateEmail(_emailController.text);
                   if (res == 1) {
                     return "Please fill email address";
                   } else if (res == 2) {
@@ -82,10 +111,11 @@ class _LoginContentState extends State<LoginContent> {
                 height: 10,
               ),
               CustomTextField(
+                  errorText: _passwordErorr,
                   obsecuretext: obsecuretext,
                   textInputAction: TextInputAction.done,
                   text1: 'Password',
-                  controller: passcontroller,
+                  controller: _passwordController,
                   hinttext: 'Enter your password',
                   title: 'Password',
                   suffixicon: IconButton(
@@ -104,7 +134,7 @@ class _LoginContentState extends State<LoginContent> {
                               color: Colors.black,
                             )),
                   validate: (value) {
-                    int res = validatePassword(passcontroller.text);
+                    int res = validatePassword(_passwordController.text);
                     if (res == 1) {
                       return 'Password must not be empty';
                     } else {
@@ -123,13 +153,14 @@ class _LoginContentState extends State<LoginContent> {
                       )
                     : InkWell(
                         onTap: () async {
+                          login();
                           if (formkey.currentState!.validate()) {
                             setState(() {
                               isloading = true;
                             });
                             LoginModel loginModel = LoginModel(
-                                email: namecontroller.text,
-                                password: passcontroller.text);
+                                email: _emailController.text,
+                                password: _passwordController.text);
 
                             await ref
                                 .watch(registerUserNotifierprovider.notifier)
@@ -162,12 +193,12 @@ class _LoginContentState extends State<LoginContent> {
                         ),
                       );
               }),
-              const SizedBox(
-                height: 20,
-              ),
-              Container(
-                padding: const EdgeInsets.only(left: 80),
-                child: const Text(
+              Center(
+                child: TextButton(
+                  onPressed: (){
+                    resetPassword(_emailController.text.toString());
+                  },
+                  child: const Text(
                   'Forgot password?',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -175,9 +206,7 @@ class _LoginContentState extends State<LoginContent> {
                       color: Colors.redAccent,
                       decoration: TextDecoration.underline),
                 ),
-              ),
-              const SizedBox(
-                height: 10,
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -201,5 +230,42 @@ class _LoginContentState extends State<LoginContent> {
         )
       ]),
     );
+  }
+
+  performLogin(){
+    if(checkData()){
+      login();
+    }
+
+  }
+  bool checkData(){
+    _emailErorr = _emailController.text.isEmpty ? "please email is required !" : null ;
+    _passwordErorr = _passwordController.text.isEmpty ? "please password is required !" : null ;
+    if(_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty){
+      return true;
+    }
+    _emailErorr = _emailController.text.isEmpty ? "please email is required !" : null ;
+    _passwordErorr = _passwordController.text.isEmpty ? "please password is required !" : null ;
+    return false;
+  }
+  login() async{
+    ProcessResponse processResponse =
+        await  AuthController().login(email: _emailController.text,
+        password: _passwordController.text);
+    if (processResponse.succsess) {
+      Navigator.pushReplacementNamed(context, '/home');
+    }
+    else{
+      context.snackBar(
+          massage: processResponse.massage, error: !processResponse.succsess);
+    }
+
+  }
+
+  resetPassword(String email){
+    Navigator.push(context, MaterialPageRoute(builder: (context) =>
+    ResetPassword(email : email)
+    ));
+    Navigator.pushNamed(context, '/reset_password');
   }
 }

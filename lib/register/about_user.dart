@@ -4,97 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:marriage/data/controller/post_controller.dart';
+import 'package:marriage/data/model/login_info_model.dart';
 import 'package:marriage/data/model/register_model.dart';
+import 'package:marriage/data/model/user.dart';
+import 'package:marriage/process_response.dart';
+import 'package:marriage/provider/auth_provider_controller.dart';
+import 'package:marriage/register/submit_regester.dart';
+import 'package:marriage/widgets/controller_helper.dart';
 
 class AboutUser extends StatefulWidget {
   const AboutUser(
-      {Key? key,
-      required this.age,
-      required this.bodytype,
-      required this.disabiltiy,
-      required this.drinkhabit,
-      required this.eathabit,
-      required this.email,
-      required this.fname,
-      required this.hobby,
-      required this.lname,
-      required this.num,
-      required this.pass,
-      required this.skin,
-      required this.smokehabit,
-      required this.weight,
-      required this.familylocation,
-      required this.familystatus,
-      required this.familytype,
-      required this.familyvalues,
-      required this.height,
-      required this.house,
-      required this.land,
-      required this.marriedstatus,
-      required this.birthday,
-      required this.caste,
-      required this.gan,
-      required this.gotra,
-      required this.hello,
-      required this.language,
-      required this.manglik,
-      required this.place,
-      required this.rasi,
-      required this.religion,
-      required this.subcaste,
-      required this.college,
-      required this.eduvalue,
-      required this.faculty,
-      required this.income,
-      required this.occupation,
-      required this.org,
-      required this.bloodgrp,
-      required this.work,
-      required this.yesno})
+      {Key? key,})
       : super(key: key);
-  final String fname;
-  final String lname;
-  final String age;
-  final String email;
-  final String pass;
-  final String num;
-  final String hobby;
-  final String weight;
-  final String bodytype;
-  final String skin;
-  final String eathabit;
-  final String drinkhabit;
-  final String smokehabit;
-  final String disabiltiy;
-  final String marriedstatus;
-  final String height;
-  final String familystatus;
-  final String familytype;
-  final String familyvalues;
-  final String familylocation;
-  final String land;
-  final String house;
-  final String hello;
-  final String manglik;
-  final String place;
-  final String birthday;
-  final String gan;
-  final String religion;
-  final String caste;
-  final String subcaste;
-  final String language;
-  final String gotra;
-  final String rasi;
-  final String bloodgrp;
-  final String college;
-  final String yesno;
-  final String faculty;
-  final String income;
-  final String occupation;
-  final String org;
-  final String work;
-
-  final String eduvalue;
   @override
   State<AboutUser> createState() => _AboutUserState();
 }
@@ -110,6 +31,7 @@ class _AboutUserState extends State<AboutUser> {
     });
   }
 
+
   TextEditingController aboutcontroller = TextEditingController();
   bool isloading = false;
 
@@ -119,149 +41,176 @@ class _AboutUserState extends State<AboutUser> {
 
     return Scaffold(
       body: ListView(
-        //shrinkWrap: true,
+        padding: const EdgeInsets.all(10),
         children: [
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Some informations about you',
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      const Text('If you need support, please contact us'),
-                      TextButton(
-                          onPressed: () {}, child: const Text('Contact Page'))
-                    ],
-                  ),
-                  Container(
-                      height: 150,
-                      decoration: const BoxDecoration(
-                          shape: BoxShape.circle, color: Colors.red),
-                      child: img != null
-                          ? CircleAvatar(
-                              radius: 150,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: Image.file(
-                                  height: 150,
-                                  width: 150,
-                                  img!,
-                                  fit: BoxFit.cover,
-                                ),
+          Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Some informations about you',
+                  style: TextStyle(fontSize: 20),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    const Text('If you need support, please contact us'),
+                    TextButton(
+                        onPressed: () {}, child: const Text('Contact Page'))
+                  ],
+                ),
+
+               //uplode images
+                Container(
+                    height: 150,
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle, color: Colors.red),
+
+                    child: img != null
+                        ? CircleAvatar(
+                            radius: 150,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: Image.file(
+                                height: 150,
+                                width: 150,
+                                img!,
+                                fit: BoxFit.cover,
                               ),
-                            )
-                          : CircleAvatar(
-                              backgroundColor: Colors.grey.shade200,
-                              radius: 150,
-                              child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: const Icon(
-                                    Icons.person,
-                                    size: 80,
-                                    color: Colors.grey,
-                                  )),
-                            )),
-                  TextButton(
-                      onPressed: () {
-                        pickImage();
-                      },
-                      child: const Text('Upload Image')),
-                  const Text(
-                    'Tell About yourself',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(10),
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: Colors.grey.shade200.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(10)),
-                    height: screenheight / 3,
-                    child: TextFormField(
-                      textInputAction: TextInputAction.done,
-                      maxLines: 7,
-                      controller: aboutcontroller,
-                      decoration: const InputDecoration(
-                        hintText: 'Write something intresting',
-                        border: InputBorder.none,
-                      ),
+                            ),
+                          )
+                        : CircleAvatar(
+                            backgroundColor: Colors.grey.shade200,
+                            radius: 150,
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: const Icon(
+                                  Icons.person,
+                                  size: 80,
+                                  color: Colors.grey,
+                                )),
+                          )),
+                TextButton(
+                    onPressed: () {
+                      pickImage();
+                    },
+                    child: const Text('Upload Image')),
+
+
+                const Text(
+                  'Tell About yourself',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+
+                //tell us about you
+                Container(
+                  margin: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade200.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(10)),
+                  height: screenheight / 3,
+                  child: TextFormField(
+                    textInputAction: TextInputAction.done,
+                    maxLines: 7,
+                    controller: aboutcontroller,
+                    decoration: const InputDecoration(
+                      hintText: 'Write something intresting',
+                      border: InputBorder.none,
                     ),
                   ),
-                  Consumer(builder: (context, ref, child) {
-                    final postuser =
-                        ref.watch(registerUserNotifierprovider.notifier);
-                    return isloading
-                        ? const Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : InkWell(
-                            onTap: () async {
-                              RegisterModel registerModel = RegisterModel(
-                                  city: widget.house,
-                                  horoscope: widget.rasi,
-                                  weight: widget.weight,
-                                  age: widget.age,
-                                  annualincome: widget.income,
-                                  bloodgroup: widget.bloodgrp,
-                                  birthPlace: widget.place,
-                                  birthday: widget.birthday,
-                                  bodytype: widget.bodytype,
-                                  aboutme: aboutcontroller.text,
-                                  familystatus: widget.familystatus,
-                                  hobbies: widget.hobby,
-                                  height: widget.height,
-                                  education: widget.eduvalue,
-                                  gotra: widget.gotra,
-                                  materialstatus: widget.marriedstatus,
-                                  orgname: widget.org,
-                                  occupation: widget.occupation,
-                                  religion: widget.religion,
-                                  skintone: widget.skin,
-                                  caste: widget.caste,
-                                  address: widget.land,
-                                  familytype: widget.familytype,
-                                  name: widget.fname,
-                                  email: widget.email,
-                                  password: widget.pass,
-                                  number: '+977${widget.num}',
-                                  lastname: widget.lname);
-                              ref
-                                  .read(registerUserNotifierprovider.notifier)
-                                  .postUser(registerModel, context);
+                ),
 
-                              setState(() {
-                                isloading = true;
-                              });
-
-                              // Navigator.push(context,
-                              //     CupertinoPageRoute(builder: (context) {
-                              //   return const AboutUser();
-                              // }));
-                            },
-                            child: Container(
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                  color: Colors.deepOrange,
-                                  borderRadius: BorderRadius.circular(10)),
-                              height: 40,
-                              width: 120,
-                              child: const Text('Continue',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500)),
-                            ),
-                          );
-                  })
-                ]),
-          ),
-        ],
-      ),
+                //uplode item in api
+                         InkWell(
+                          onTap: ()  {
+                            regesert();
+                            print("malsa");
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: Colors.deepOrange,
+                                borderRadius: BorderRadius.circular(10)),
+                            height: 40,
+                            width: 120,
+                            child: const Text('Continue',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500)),
+                          ),
+                        )
+        ],)
+    ]),
     );
   }
+
+  regesert()async {
+
+    // ProcessResponse processResponse = await AuthController().singUp(user);
+    // if (processResponse.succsess) {
+    //   Navigator.pushNamed(context, '/login');
+    //   print("regester");
+    //
+    // }
+    // else{
+    // }
+    // context.snackBar(
+    //     massage: processResponse.massage, error: !processResponse.succsess);
+
+  }
+
+  // UserModel get user {
+  //   UserModel user = UserModel();
+  //   user.firstName = SubmitRegester().firstName!;
+  //   user.lastName = SubmitRegester().lastName!;
+  //   user.password = SubmitRegester().password!;
+  //   user.mobileNumber =SubmitRegester().mobilNumber!;
+  //   user.profileFor =SubmitRegester().profileFor!;
+  //   user.email =SubmitRegester().email!;
+  //   user.education =SubmitRegester().educationvalue!;
+  //   //user.age = 2;
+  //   user.height =20;
+  //   user.weight =SubmitRegester().weight!;
+  //   user.dateOfBirth =SubmitRegester().birthday!;
+  //   user.bodyType =SubmitRegester().bodyType!;
+  //   user.skinTone =SubmitRegester().skinTone!;
+  //   user.smoke =SubmitRegester().smokingHabit!;
+  //   user.marriedBrother =SubmitRegester().brotherMarried!;
+  //   user.marriedSister =SubmitRegester().sisterMarried!;
+  //   user.maritalStatus =SubmitRegester().marriedstatus!;
+  //   user.manglik =SubmitRegester().manglik!;
+  //   user.occupation =SubmitRegester().occupation!;
+  //   user.mothersName =SubmitRegester().motherName!;
+  //   user.fatherName =SubmitRegester().fathreName!;
+  //   user.familyType =SubmitRegester().familytype!;
+  //   user.familyStatus =SubmitRegester().familystatus!;
+  //   user.aboutFamily =SubmitRegester().familyvalues!;
+  //   user.noOfBrothers =SubmitRegester().brother!;
+  //   user.noOfSisters =SubmitRegester().sister!;
+  //   user.anualIncome =SubmitRegester().income!;
+  //   user.religion =SubmitRegester().religion!;
+  //   user.employedIn =SubmitRegester().work!;
+  //   user.address =SubmitRegester().land!;
+  //   user.caste =SubmitRegester().caste!;
+  //   user.subCaste =SubmitRegester().subcaste!;
+  //   user.maritalStatus =SubmitRegester().marriedstatus!;
+  //   user.gothra =SubmitRegester().gotra!;
+  //   user.timeToCall =SubmitRegester().time!;
+  //   user.hobby =SubmitRegester().hobby!;
+  //   user.birthPlace =SubmitRegester().place!;
+  //   user.languageKnown =SubmitRegester().language!;
+  //   user.livingCountry =SubmitRegester().familylocation!;
+  //   user.city =SubmitRegester().house!;
+  //   user.gender =SubmitRegester().selected!;
+  //   user.description =SubmitRegester().description!;
+  //   user.residenceStatus =SubmitRegester().rasi!;
+  //   user.bloodGroup =SubmitRegester().bloodgrp!;
+  //
+  //
+  //
+  //
+  //
+  //   return user;
+  // }
 }

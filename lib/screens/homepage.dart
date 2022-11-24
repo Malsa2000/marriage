@@ -17,6 +17,9 @@ import 'package:marriage/login/login.dart';
 import 'package:marriage/utils/nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/model/short_list.dart';
+import '../data/model/top_user.dart';
+import '../provider/home_provider_controller.dart';
 import 'matches.dart';
 import 'search/Search.dart';
 import 'settings_page.dart';
@@ -132,10 +135,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return Scaffold(
       endDrawer: const Drawerr(),
       appBar: AppBar(
-          // ignore: prefer_const_constructors
-          // systemOverlayStyle: SystemUiOverlayStyle(
-          //     statusBarColor: Colors.deepOrange,
-          //     systemNavigationBarColor: Colors.pink),
           elevation: 0,
           backgroundColor: Colors.deepOrange,
           leading: const Padding(
@@ -157,243 +156,323 @@ class _HomeViewState extends ConsumerState<HomeView> {
           }, loading: () {
             return const AppBarShimmer();
           })),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: ListView(children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Top Users',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              TextButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        CupertinoPageRoute(builder: (context) {
-                      return const TopUsers();
-                    }));
-                  },
-                  child: const Text('See all'))
-            ],
-          ),
-          Consumer(builder: (context, ref, child) {
-            final data = ref.watch(topuserInfoProvider);
+      body: ListView(
+          padding: const EdgeInsets.all(12),
+          children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Top Users',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            TextButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      CupertinoPageRoute(builder: (context) {
+                    return const TopUsers();
+                  }));
+                },
+                child: const Text('See all'))
+          ],
+        ),
 
-            return data.when(data: (d) {
-              return Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(8),
-                height: screenheight * 0.19,
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 8,
-                    itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: SizedBox(
-                              height: screenheight * 0.13,
-                              width: screenwidth * 0.28,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.network(
-                                  imagesList[index].Image,
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            ),
+            FutureBuilder<List<TopUser>>(
+                future: HomeController().getTopUser(),
+                builder: (context ,AsyncSnapshot snapShot){
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: 1,
+                    itemBuilder: (context ,index){
+
+                      return Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(8),
+                        height: screenheight * 0.19,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: 90,
+                            maxHeight: 90,
+                            minWidth: 340,
+                            maxWidth: 340
                           ),
-                          Text(
-                            d.user[index].firstname,
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w300),
-                          ),
-                        ],
-                      );
-                    }),
-              );
-            }, error: (err, s) {
-              return Text(err.toString());
-            }, loading: () {
-              return const TopUserShimmer();
-            });
-          }),
-          const SizedBox(
-            height: 10,
-          ),
-          Consumer(builder: (context, ref, child) {
-            final data = ref.watch(topuserInfoProvider);
-            return data.when(data: (d) {
-              return CarouselSlider(
-                  items: imagesList
-                      .map((e) => Column(
-                            children: [
-                              Image.network(
-                                e.Image,
-                                height: screenheight * 0.21,
-                              ),
-                            ],
-                          ))
-                      .toList(),
-                  options: CarouselOptions(autoPlay: true));
-            }, error: (err, s) {
-              return Text(err.toString());
-            }, loading: () {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            });
-          }),
-          Consumer(builder: (context, ref, child) {
-            final data = ref.watch(shortListProvider);
-            return data.when(data: (d) {
-              return Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Shortlist',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                      ),
-                      TextButton(
-                          onPressed: () {
-                            Navigator.push(context,
-                                CupertinoPageRoute(builder: (context) {
-                              return const ShortListUsers();
-                            }));
-                          },
-                          child: const Text('See all'))
-                    ],
-                  ),
-                  Container(
-                    color: Colors.white,
-                    height: screenheight * 0.3,
-                    width: screenwidth,
-                    child: ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: 2,
-                        itemBuilder: (context, index) {
-                          return Row(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.all(10),
-                                child: CircleAvatar(
-                                  radius: 50,
-                                  backgroundColor: Colors.white,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(50),
-                                    child: Image.network(
-                                      circleimages[index].Image,
-                                      fit: BoxFit.contain,
-                                      height: 100,
-                                      width: 100,
+                          child: ListView.builder(
+                            padding: EdgeInsets.all(5),
+
+                              scrollDirection: Axis.horizontal,
+                              itemCount:  snapShot.data!.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                                    border: Border.all(
+                                      width: 0.4,
+                                        color: Colors.deepOrange)
+                                  ),
+                                  margin: EdgeInsets.all(10),
+                                  padding: EdgeInsets.all(5),
+                                  child: Column(
+                                    children: [
+                                      CircleAvatar(
+                                        child: Text(
+                                         snapShot.data[index].firstName
+                                        ),
+                                        backgroundColor:Colors.deepOrange,
+                                        radius: 25,
+                                      ),
+                                      Text(
+                                        snapShot.data[index].firstName,
+                                        style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                      Text(
+                                        snapShot.data[index].lastName,
+                                        style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w300),),
+
+                                  ],
+                                  ),
+                                );
+                              }),
+                        ),
+                      );;
+
+
+
+                    },
+                  );
+                }),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Shortlist',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+                TextButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) {
+                            return const ShortListUsers();
+                          }));
+                    },
+                    child: const Text('See all'))
+              ],
+            ),
+            FutureBuilder<List<Data>>(
+                future: HomeController().getShortList(),
+                builder: (context, AsyncSnapshot snapShot) {
+                  if (snapShot.hasError) {
+                    return Column(
+                      children: [
+                        Image(
+                            height: 220,
+                            width: 100,
+                            image: AssetImage("images/search.png")),
+                        const Text("Not Result Found!")
+                      ],
+                    );
+                  }
+                  if (snapShot.hasData) {
+                    return Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(8),
+                      height: screenheight * 0.19,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                         // scrollDirection: Axis.horizontal,
+                          itemCount: 8,
+                          itemBuilder: (context, index) {
+                            return Row(
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.all(10),
+                                  child: CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: Colors.white,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(50),
+                                      child: Image.network(
+                                        "snapShot.data[index].Image",
+                                        fit: BoxFit.contain,
+                                        height: 100,
+                                        width: 100,
+                                      ),
                                     ),
                                   ),
                                 ),
+                                Container(
+                                  padding: const EdgeInsets.only(top: 0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        ' ${snapShot.data[index].user.firstName} ${snapShot.data[index].user.lastName}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(
+                                          ' ${snapShot.data[index].age} yrs , ${snapShot.data[index].height} , ${snapShot.data[index].gender}'),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(' ${snapShot.data[index].city}')
+                                    ],
+                                  ),
+                                )
+                              ],
+                            );
+                          }),
+                    );
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFF62D2D),
+                      ),
+                    );
+                  }
+                }),
+
+        Consumer(builder: (context, ref, child) {
+          final data = ref.watch(topuserInfoProvider);
+
+          return data.when(data: (d) {
+            return Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(8),
+              height: screenheight * 0.19,
+              child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 8,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: SizedBox(
+                            height: screenheight * 0.13,
+                            width: screenwidth * 0.28,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                imagesList[index].Image,
+                                fit: BoxFit.fill,
                               ),
-                              Container(
-                                padding: const EdgeInsets.only(top: 0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      ' ${d[index].user.firstname} ${d[index].user.secondname}',
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                        ' ${d[index].age} yrs , ${d[index].height} , ${d[index].gender}'),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(' ${d[index].city}')
-                                  ],
-                                ),
-                              )
-                            ],
-                          );
-                        }),
-                  ),
-                ],
-              );
-            }, error: (err, s) {
-              return Text(err.toString());
-            }, loading: () {
-              return const ShimmerEffets();
-            });
-          }),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 5),
-                child: Text(
-                  'Explore Marriage station',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(
-                height: screenheight * 0.19,
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                                color: index == 0
-                                    ? Colors.teal.shade100
-                                    : index == 1
-                                        ? Colors.lightGreen.shade300
-                                        : index == 2
-                                            ? Colors.blue.shade400
-                                            : index == 3
-                                                ? Colors.purple.shade200
-                                                : Colors.deepOrange.shade100,
-                                borderRadius: BorderRadius.circular(10)),
-                            height: screenheight * 0.085,
-                            width: screenwidth * 0.24,
-                            child: Icon(
-                              index == 1
-                                  ? Icons.safety_check
-                                  : index == 0
-                                      ? Icons.room_service
-                                      : index == 2
-                                          ? Icons.store_mall_directory
-                                          : index == 3
-                                              ? Icons.card_membership
-                                              : Icons.help,
-                              color: Colors.white,
-                              size: 30,
                             ),
                           ),
-                          Text(index == 0
-                              ? 'Service'
-                              : index == 1
-                                  ? 'Pricavy'
-                                  : index == 2
-                                      ? 'Stores'
-                                      : index == 3
-                                          ? 'Membership'
-                                          : 'Help & support')
-                        ],
-                      );
-                    }),
-              )
-            ],
-          )
-        ]),
-      ),
+                        ),
+                        Text(
+                          d.user[index].firstname,
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                    );
+                  }),
+            );
+          }, error: (err, s) {
+            return Text(err.toString());
+          }, loading: () {
+            return const TopUserShimmer();
+          });
+        }),
+        const SizedBox(
+          height: 10,
+        ),
+        // Consumer(builder: (context, ref, child) {
+        //   final data = ref.watch(topuserInfoProvider);
+        //   return data.when(data: (d) {
+        //     return CarouselSlider(
+        //         items: imagesList
+        //             .map((e) => Column(
+        //                   children: [
+        //                     Image.network(
+        //                       e.Image,
+        //                       height: screenheight * 0.21,
+        //                     ),
+        //                   ],
+        //                 ))
+        //             .toList(),
+        //         options: CarouselOptions(autoPlay: true));
+        //   }, error: (err, s) {
+        //     return Text(err.toString());
+        //   }, loading: () {
+        //     return const Center(
+        //       child: CircularProgressIndicator(),
+        //     );
+        //   });
+        // }),
+
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(left: 5),
+              child: Text(
+                'Explore Marriage station',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(
+              height: screenheight * 0.19,
+              child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 5,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                              color: index == 0
+                                  ? Colors.teal.shade100
+                                  : index == 1
+                                      ? Colors.lightGreen.shade300
+                                      : index == 2
+                                          ? Colors.blue.shade400
+                                          : index == 3
+                                              ? Colors.purple.shade200
+                                              : Colors.deepOrange.shade100,
+                              borderRadius: BorderRadius.circular(10)),
+                          height: screenheight * 0.085,
+                          width: screenwidth * 0.24,
+                          child: Icon(
+                            index == 1
+                                ? Icons.safety_check
+                                : index == 0
+                                    ? Icons.room_service
+                                    : index == 2
+                                        ? Icons.store_mall_directory
+                                        : index == 3
+                                            ? Icons.card_membership
+                                            : Icons.help,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                        Text(index == 0
+                            ? 'Service'
+                            : index == 1
+                                ? 'Pricavy'
+                                : index == 2
+                                    ? 'Stores'
+                                    : index == 3
+                                        ? 'Membership'
+                                        : 'Help & support')
+                      ],
+                    );
+                  }),
+            )
+          ],
+        )
+      ]),
     );
   }
 }

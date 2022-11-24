@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../register/register_info.dart';
+import '../widgets/Custom_text_field.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);

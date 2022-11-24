@@ -2,55 +2,65 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:marriage/data/model/user.dart';
+import 'package:marriage/process_response.dart';
+import 'package:marriage/register/education.dart';
 import 'package:marriage/register/lifestyle_info.dart';
+import 'package:marriage/register/submit_regester.dart';
+import 'package:marriage/widgets/all_list.dart';
+import 'package:marriage/widgets/controller_helper.dart';
 
 import '../data/controller/post_controller.dart';
+import '../provider/auth_provider_controller.dart';
+import '../widgets/Custom_text_field.dart';
 
 class RegisterInfo extends StatefulWidget {
-  const RegisterInfo(
-      {Key? key,
-      required this.firstname,
-      required this.lastname,
-      required this.number})
-      : super(key: key);
-  final String firstname;
-  final String lastname;
-  final String number;
+   RegisterInfo({
+    required this.firstName,
+     required this.lastName,
+      this.gender,
+     required this.mobileNumber,
+      this.profileFor,
+     Key? key,
+      }) : super(key: key);
+  String firstName ,lastName  , mobileNumber ;
+  String? profileFor,gender;
+
   @override
   State<RegisterInfo> createState() => _RegisterInfoState();
 }
 
 class _RegisterInfoState extends State<RegisterInfo> {
-  TextEditingController agecontroller = TextEditingController();
-  TextEditingController emailcontroller = TextEditingController();
-  TextEditingController passcontroller = TextEditingController();
-  TextEditingController repasscontroller = TextEditingController();
-  final GlobalKey<FormState> formkey = GlobalKey<FormState>();
-  late String fname;
-  late String lname;
-  late String num;
-  late String email;
-  late String age;
-  late String pass;
 
+ late TextEditingController _agecontroller ;
+ late TextEditingController _emailcontroller;
+ late TextEditingController _passcontroller;
+ late TextEditingController _repasscontroller;
+
+ final GlobalKey<FormState> formkey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _agecontroller = TextEditingController();
+    _emailcontroller = TextEditingController();
+    _passcontroller = TextEditingController();
+    _repasscontroller = TextEditingController();
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    _agecontroller.dispose();
+    _emailcontroller.dispose();
+    _passcontroller.dispose();
+    _repasscontroller.dispose();
+  }
+
+  late String fname ,pass ,lname ,num ,email ,age;
+  String? emailErorr ,passError;
   bool isLoading = false;
-  String? timetocallvalue;
-  final List<String> callItems = [
-    'Morning',
-    'Evening',
-    'Afternoon',
-    'Night',
-  ];
-  final List<String> bloodgrp = [
-    'A+',
-    'A-',
-    'B+',
-    'B-',
-    'O+',
-    'O-',
-    'AB+',
-    'AB-'
-  ];
+
+
   int validateEmail(String emailAddress) {
     String patttern = r'^[\w-.]+@([\w-]+.)+[\w-]{2,4}$';
     RegExp regExp = RegExp(patttern);
@@ -62,7 +72,6 @@ class _RegisterInfoState extends State<RegisterInfo> {
       return 0;
     }
   }
-
   int validatePassword(String pswd) {
     if (pswd.isEmpty) {
       return 1;
@@ -80,6 +89,7 @@ class _RegisterInfoState extends State<RegisterInfo> {
     double screenwidth = MediaQuery.of(context).size.width;
     double screenheight = MediaQuery.of(context).size.height;
     return SafeArea(
+
       child: Scaffold(
         body: ListView(children: [
           Form(
@@ -100,6 +110,7 @@ class _RegisterInfoState extends State<RegisterInfo> {
                           onPressed: () {}, child: const Text('Contact Page'))
                     ],
                   ),
+
                   const SizedBox(
                     height: 20,
                   ),
@@ -107,6 +118,7 @@ class _RegisterInfoState extends State<RegisterInfo> {
                       height: screenheight * 0.088,
                       width: screenwidth * 1,
                       margin: const EdgeInsets.all(5),
+
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -115,6 +127,7 @@ class _RegisterInfoState extends State<RegisterInfo> {
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
+
                             DropdownButtonFormField2(
                               buttonElevation: 3,
                               decoration: InputDecoration(
@@ -149,7 +162,7 @@ class _RegisterInfoState extends State<RegisterInfo> {
                               dropdownDecoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15),
                               ),
-                              items: callItems
+                              items: AllList().callItems
                                   .map((item) => DropdownMenuItem<String>(
                                         value: item,
                                         child: Text(
@@ -170,16 +183,20 @@ class _RegisterInfoState extends State<RegisterInfo> {
                                 //Do something when changing the item if you want.
                               },
                               onSaved: (value) {
-                                timetocallvalue = value.toString();
+                                AllList().timetocallvalue = value.toString();
                               },
                             ),
                           ])),
+
+                  //age textFild
                   CustomTextField(
                     text1: 'Age',
-                    controller: agecontroller,
+                    controller: _agecontroller,
                     hinttext: 'Enter age',
                     title: 'Age',
                   ),
+
+                 //boold
                   Container(
                       height: screenheight * 0.088,
                       width: screenwidth * 1,
@@ -226,7 +243,7 @@ class _RegisterInfoState extends State<RegisterInfo> {
                               dropdownDecoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15),
                               ),
-                              items: bloodgrp
+                              items: AllList().bloodgrp
                                   .map((item) => DropdownMenuItem<String>(
                                         value: item,
                                         child: Text(
@@ -247,13 +264,15 @@ class _RegisterInfoState extends State<RegisterInfo> {
                                 bloodgrpselect = value.toString();
                               },
                               onSaved: (value) {
-                                timetocallvalue = value.toString();
+                                AllList().timetocallvalue = value.toString();
                               },
                             ),
                           ])),
+
+                  //email
                   CustomTextField(
                     validate: (value) {
-                      int res = validateEmail(emailcontroller.text);
+                      int res = validateEmail(_emailcontroller.text);
                       if (res == 1) {
                         return "Please fill email address";
                       } else if (res == 2) {
@@ -263,13 +282,15 @@ class _RegisterInfoState extends State<RegisterInfo> {
                       }
                     },
                     text1: 'Email address',
-                    controller: emailcontroller,
+                    controller: _emailcontroller,
                     hinttext: 'Enter email',
                     title: 'Email address',
                   ),
+
+                  //password
                   CustomTextField(
                       validate: (value) {
-                        int res = validatePassword(passcontroller.text);
+                        int res = validatePassword(_passcontroller.text);
                         if (res == 1) {
                           return "Please enter password";
                         } else if (res == 2) {
@@ -279,64 +300,44 @@ class _RegisterInfoState extends State<RegisterInfo> {
                         }
                       },
                       text1: 'Password',
-                      controller: passcontroller,
+                      controller: _passcontroller,
                       hinttext: 'Enter password',
                       title: 'Password'),
+
+                  //conformPass
                   CustomTextField(
                       validate: (value) {
-                        if (passcontroller.text != repasscontroller.text) {
+                        if (_repasscontroller.text != _repasscontroller.text) {
                           return "Please enter same password";
                         } else {
                           return null;
                         }
                       },
                       text1: 'Repass',
-                      controller: repasscontroller,
+                      controller: _repasscontroller,
                       hinttext: 'Re-enter password',
                       title: 'Confirm password'),
-                  Consumer(builder: (context, ref, child) {
-                    final postuser =
-                        ref.watch(registerUserNotifierprovider.notifier);
-                    return isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : InkWell(
-                            onTap: () async {
-                              if (formkey.currentState!.validate()) {
-                                setState(() {
-                                  fname = widget.firstname;
-                                  lname = widget.lastname;
-                                  num = widget.number;
-                                  age = agecontroller.text;
-                                  email = emailcontroller.text;
-                                  pass = passcontroller.text;
-                                });
-                                Navigator.push(context,
-                                    CupertinoPageRoute(builder: (context) {
-                                  return LoginPage(
-                                      fname: fname,
-                                      bloodgroup: bloodgrpselect,
-                                      lastname: lname,
-                                      num: num,
-                                      age: age,
-                                      email: email,
-                                      password: pass);
-                                }));
-                                // RegisterModel registerModel = RegisterModel(
-                                //     name: widget.firstname.text,
-                                //     age: int.parse(agecontroller.text),
-                                //     email: emailcontroller.text,
-                                //     password: passcontroller.text,
-                                //     number: widget.number.text,
-                                //     lastname: widget.lastname.text);
 
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                // await postuser.postUser(registerModel, context);
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              }
+                  ElevatedButton(
+                    onPressed: () {
+                      regesert();
+                    },
+                    child: Text("contunio"),
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xFF000000),
+                      minimumSize: Size(340, 60),
+                      elevation: 2,
+                      alignment: AlignmentDirectional.center,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                    ),
+                  ),
+
+
+                 InkWell(
+                            onTap: () async {
+                              print("object");
+                              regesert();
                             },
                             child: Container(
                               margin: EdgeInsets.only(
@@ -356,8 +357,8 @@ class _RegisterInfoState extends State<RegisterInfo> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                            ));
-                  })
+                            ))
+
                 ],
               ),
             ),
@@ -366,6 +367,68 @@ class _RegisterInfoState extends State<RegisterInfo> {
       ),
     );
   }
+ void performRegester(){
+    if(checkData()){
+      regesert();
+    }
+  }
+  bool checkData(){
+    if(_emailcontroller.text.isNotEmpty &&
+        _passcontroller.text.isNotEmpty &&
+        _agecontroller.text.isNotEmpty
+    ){
+      return true;
+    }
+    _emailcontroller.text.isEmpty ? "email requird " : null ;
+    _passcontroller.text.isEmpty ? "password requird  " : null ;
+    _agecontroller.text.isEmpty ? "age requird  " : null ;
+    return false;
+  }
+  void regester() {
+    // Navigator.push(context,
+    //     MaterialPageRoute(builder: (context)=> Education(
+    //       firstName: widget.firstName,
+    //       lastName: widget.lastName,
+    //       gender: widget.gender,
+    //       mobileNumber: widget.mobileNumber,
+    //       profileFor: widget.profileFor,
+    //       email: _emailcontroller.text,
+    //       age: _agecontroller.text,
+    //       timeToCall:AllList().timetocallvalue,
+    //       booldType: bloodgrpselect,
+    //       password: _passcontroller.text,
+    //     )
+    //
+    // ));
+  }
+
+ regesert()async {
+   ProcessResponse processResponse =
+   await AuthController().singUp(user);
+   if (processResponse.succsess) {
+     Navigator.pushNamed(context, "/login");
+   }
+   else{
+     context.snackBar(
+         massage: processResponse.massage, error: !processResponse.succsess);
+   }
+   context.snackBar(
+       massage: processResponse.massage, error: !processResponse.succsess);
+   print(processResponse.massage);
+
+ }
+
+ UserRegester get user {
+   UserRegester user = UserRegester();
+   user.firstName = widget.firstName;
+   user.lastName = widget.lastName;
+   user.mobileNumber = widget.mobileNumber;
+   user.email = _emailcontroller.text.trim();
+   user.password = _passcontroller.text.trim();
+   user.profileFor = widget.profileFor;
+   user.age =  int.parse( _agecontroller.text.trim());
+   return user;
+ }
 }
 
 class Registerdrop {
@@ -380,62 +443,3 @@ class Registerdrop {
   ];
 }
 
-class CustomTextField extends StatelessWidget {
-  CustomTextField(
-      {Key? key,
-      this.textInputAction = TextInputAction.next,
-      this.obsecuretext = false,
-      required this.text1,
-      required this.controller,
-      required this.hinttext,
-      this.title,
-      this.labeltext,
-      this.suffixicon,
-      this.validate})
-      : super(key: key);
-  final String text1;
-  TextEditingController controller;
-  final String hinttext;
-  final String? labeltext;
-  final String? title;
-  final String? Function(String?)? validate;
-  bool obsecuretext;
-  Widget? suffixicon;
-  TextInputAction textInputAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title!,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-        const SizedBox(
-          height: 5,
-        ),
-        TextFormField(
-          obscureText: obsecuretext,
-          validator: validate,
-          controller: controller,
-          textInputAction: textInputAction,
-          decoration: InputDecoration(
-              suffixIcon: suffixicon,
-              labelText: labeltext,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              hintText: hinttext,
-              focusedBorder: outlinefocusBorder(color: Colors.deepOrange),
-              enabledBorder: outlinefocusBorder(),
-              errorBorder: outlinefocusBorder(color: Colors.red),
-              focusedErrorBorder: outlinefocusBorder(color: Colors.red)),
-        ),
-      ]),
-    );
-  }
-
-  OutlineInputBorder outlinefocusBorder({Color color = Colors.black}) {
-    return OutlineInputBorder(
-        borderSide: BorderSide(color: color),
-        gapPadding: 0.2,
-        borderRadius: BorderRadius.circular(15));
-  }
-}
